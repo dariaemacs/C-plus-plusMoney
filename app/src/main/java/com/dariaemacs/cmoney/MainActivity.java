@@ -15,18 +15,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "Main";
-
 
     NfcAdapter nfc = null;
     DatabaseHelper db_helper = null;
@@ -43,18 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
     ImageRadioGroup radioButtons;
 
-//    int radio_array[] = {R.id.radio_2, R.id.radio_10, R.id.radio_15};
-//    int image_array[] = {R.id.credits2, R.id.credits10, R.id.credits15};
-//
-//    ArrayList<RadioButton> radio_buttons = new ArrayList<>();
-//
-//    int credit_drawable[] = {R.drawable.credits2_one, R.drawable.credits10_one,
-//                             R.drawable.credits15_one};
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         setContentView(R.layout.activity_main2);
 
         nfc = NfcAdapter.getDefaultAdapter(this);
@@ -63,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-
         initViews();
         initDB();
         showDB();
@@ -77,13 +66,6 @@ public class MainActivity extends AppCompatActivity {
         dbRowsView = (TextView) findViewById(R.id.db_rows);
 
         radioButtons = new ImageRadioGroup(this);
-//        for (int i = 0; i < radio_array.length; ++i) {
-//            RadioButton rb = (RadioButton) findViewById(radio_array[i]);
-//            if (i == 0) {
-//                rb.setChecked(true);
-//            }
-//            radio_buttons.add(rb);
-//        }
     }
 
     void initDB(){
@@ -133,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         radioButtons.radioClicked(view);
     }
 
-    public void onImageButtonClicked(View view) {
+    protected void onImageButtonClicked(View view) {
         radioButtons.imageClicked(view);
     }
 
@@ -164,11 +146,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void showMessage(String card_item){
+    void showMessage(String card_item) {
         Toast toast = new Toast(this);
         toast.setDuration(Toast.LENGTH_LONG);
         ImageView view = new ImageView(this);
-        view.setImageResource(radioButtons.getImageById(card_item));
+        int imageRes = radioButtons.getImageById(card_item);
+        if (imageRes == 0) {
+            view.setImageResource(R.drawable.credits_none);
+        } else {
+            view.setImageResource(radioButtons.getImageById(card_item));
+        }
         toast.setView(view);
         toast.show();
     }
@@ -194,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
             showDB();
         } else {
             Toast.makeText(this, "Inserting..." + " ID #" + String.valueOf(CARD_ID) +
-                    " this primary key exists", Toast.LENGTH_LONG).show();
+                    " this primary key EXISTS!", Toast.LENGTH_LONG).show();
         }
     }
 
