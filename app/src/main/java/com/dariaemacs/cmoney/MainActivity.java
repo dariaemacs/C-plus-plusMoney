@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "Main";
+
 
     NfcAdapter nfc = null;
     DatabaseHelper db_helper = null;
@@ -39,15 +41,15 @@ public class MainActivity extends AppCompatActivity {
     TextView dbCountView;
     TextView dbRowsView;
 
-    int credit_values[] = {2, 10, 15};
+    ImageRadioGroup radioButtons;
 
-    int radio_array[] = {R.id.radio_2, R.id.radio_10, R.id.radio_15};
-    int image_array[] = {R.id.credits2, R.id.credits10, R.id.credits15};
-
-    ArrayList<RadioButton> radio_buttons = new ArrayList<>();
-
-    int credit_drawable[] = {R.drawable.credits2_one, R.drawable.credits10_one,
-                             R.drawable.credits15_one};
+//    int radio_array[] = {R.id.radio_2, R.id.radio_10, R.id.radio_15};
+//    int image_array[] = {R.id.credits2, R.id.credits10, R.id.credits15};
+//
+//    ArrayList<RadioButton> radio_buttons = new ArrayList<>();
+//
+//    int credit_drawable[] = {R.drawable.credits2_one, R.drawable.credits10_one,
+//                             R.drawable.credits15_one};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +76,14 @@ public class MainActivity extends AppCompatActivity {
         dbCountView = (TextView) findViewById(R.id.db_count);
         dbRowsView = (TextView) findViewById(R.id.db_rows);
 
-        for (int i = 0; i < radio_array.length; ++i) {
-            RadioButton rb = (RadioButton) findViewById(radio_array[i]);
-            if (i == 0) {
-                rb.setChecked(true);
-            }
-            radio_buttons.add(rb);
-        }
+        radioButtons = new ImageRadioGroup(this);
+//        for (int i = 0; i < radio_array.length; ++i) {
+//            RadioButton rb = (RadioButton) findViewById(radio_array[i]);
+//            if (i == 0) {
+//                rb.setChecked(true);
+//            }
+//            radio_buttons.add(rb);
+//        }
     }
 
     void initDB(){
@@ -127,36 +130,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void onRadioButtonClicked(View view){
-        boolean checked = ((RadioButton) view).isChecked();
-        for (int i = 0; i < radio_array.length; ++i) {
-            if (checked && view.getId() == radio_array[i]) {
-                setChecked(i);
-            }
-        }
+        radioButtons.radioClicked(view);
     }
 
     public void onImageButtonClicked(View view) {
-        for (int i = 0; i < image_array.length; ++i) {
-            if (view.getId() == image_array[i]) {
-                setChecked(i);
-            }
-        }
+        radioButtons.imageClicked(view);
     }
 
-    void setChecked(int i){
-        VALUE = credit_values[i];
-        RadioButton rb = radio_buttons.get(i);
-        rb.setChecked(true);
-        setUnchecked(i);
-    }
 
-    void setUnchecked(int i) {
-        for (int j = 0; j < radio_buttons.size(); ++j) {
-            if (j != i) {
-                RadioButton oth_rb = radio_buttons.get(j);
-                oth_rb.setChecked(false);
-            }
-        }
+    void setValue(long value){
+        VALUE = value;
     }
 
     @Override
@@ -185,20 +168,11 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = new Toast(this);
         toast.setDuration(Toast.LENGTH_LONG);
         ImageView view = new ImageView(this);
-        view.setImageResource(getImageById(card_item));
+        view.setImageResource(radioButtons.getImageById(card_item));
         toast.setView(view);
         toast.show();
     }
 
-    int getImageById(String v){
-        int value = Integer.valueOf(v);
-        for(int i = 0; i < credit_values.length; ++i){
-            if(credit_values[i] == value){
-                return credit_drawable[i];
-            }
-        }
-        return 0;
-    }
 
     protected void onAddButton(View view) {
         if (CARD_ID == -1) {
@@ -216,8 +190,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Inserting..." + " ID #" + String.valueOf(CARD_ID) +
                     " VALUE #" + String.valueOf(VALUE) + " row id: ",
                     Toast.LENGTH_LONG).show();
-
-            long cnt = DatabaseUtils.queryNumEntries(db, CardEntry.TABLE_NAME);
 
             showDB();
         } else {
@@ -294,11 +266,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
-        if(db != null) {
+        if (db != null) {
             db.close();
         }
         db = null;
+
+        db_helper = null;
+
+        cardView = null;
+        dbCountView = null;
+        dbRowsView = null;
+
+        radioButtons = null;
     }
 }
