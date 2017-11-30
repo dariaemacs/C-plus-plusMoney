@@ -3,4 +3,4 @@ This is the educational project. It shows how to work with NFC Adapter and SQLit
 # LICENSE
 BSD license.
 # ANALYSIS
-<img src='https://bettercodehub.com/edge/badge/dariaemacs/C-plus-plusMoney?branch=master'/>
+[![BCH compliance](https://bettercodehub.com/edge/badge/dariaemacs/C-plus-plusMoney?branch=master)](https://bettercodehub.com/)
