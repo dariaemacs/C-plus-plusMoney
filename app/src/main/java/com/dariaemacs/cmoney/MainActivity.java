@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -51,15 +52,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main2);
 
         nfc = NfcAdapter.getDefaultAdapter(this);
-        if(nfc == null){
+        if (nfc == null) {
             Toast.makeText(MainActivity.this, "Your device isn't support adapter",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
+        initViews();
+        initDB();
+        showDB();
+    }
+
+    void initViews() {
         cardView = (TextView) findViewById(R.id.card_id);
         cardView.setTextSize(14 * getResources().getDisplayMetrics().density);
 
@@ -73,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
             }
             radio_buttons.add(rb);
         }
+    }
 
+    void initDB(){
         db_helper = new DatabaseHelper(this);
         db = db_helper.getWritableDatabase();
-
-        showDB();
     }
 
     private void showDB(){
@@ -157,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             byte[] arr = tag.getId();
             long index = new BigInteger(arr).longValue();
-            Log.i(LOG_TAG, "tag: " + index);
 
             CARD_ID = index;
             cardView.setText(String.valueOf(index));
@@ -167,16 +174,20 @@ public class MainActivity extends AppCompatActivity {
                 VALUE = Integer.valueOf(card_item);
                 isExist = true;
 
-                Toast toast = new Toast(this);
-                toast.setDuration(Toast.LENGTH_LONG);
-                ImageView view = new ImageView(this);
-                view.setImageResource(getImageById(card_item));
-                toast.setView(view);
-                toast.show();
+                showMessage(card_item);
             }else{
                 isExist = false;
             }
         }
+    }
+
+    void showMessage(String card_item){
+        Toast toast = new Toast(this);
+        toast.setDuration(Toast.LENGTH_LONG);
+        ImageView view = new ImageView(this);
+        view.setImageResource(getImageById(card_item));
+        toast.setView(view);
+        toast.show();
     }
 
     int getImageById(String v){
@@ -203,16 +214,15 @@ public class MainActivity extends AppCompatActivity {
 
             db.insert(CardEntry.TABLE_NAME, null, values);
             Toast.makeText(this, "Inserting..." + " ID #" + String.valueOf(CARD_ID) +
-                    " VALUE #" + String.valueOf(VALUE), Toast.LENGTH_LONG).show();
+                    " VALUE #" + String.valueOf(VALUE) + " row id: ",
+                    Toast.LENGTH_LONG).show();
 
             long cnt = DatabaseUtils.queryNumEntries(db, CardEntry.TABLE_NAME);
-            Log.i(LOG_TAG, "count: " + cnt);
 
             showDB();
         } else {
             Toast.makeText(this, "Inserting..." + " ID #" + String.valueOf(CARD_ID) +
                     " this primary key exists", Toast.LENGTH_LONG).show();
-            Log.i(LOG_TAG, " key exist: " + CARD_ID);
         }
     }
 
@@ -253,7 +263,6 @@ public class MainActivity extends AppCompatActivity {
             if (result.getCount() > 0) {
                 result.moveToFirst();
                 value_item = result.getString(result.getColumnIndex(CardEntry.COLUMN_NAME_VALUE));
-                Log.i(LOG_TAG, " Key " + CARD_ID + " exist. Value = " + value_item);
             }
             result.close();
         }
