@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         nfc = NfcAdapter.getDefaultAdapter(this);
         if (nfc == null) {
-            Toast.makeText(MainActivity.this, "Your device isn't support adapter",
+            Toast.makeText(MainActivity.this, "Your device doesn't support adapter",
                     Toast.LENGTH_SHORT).show();
             return;
         }
