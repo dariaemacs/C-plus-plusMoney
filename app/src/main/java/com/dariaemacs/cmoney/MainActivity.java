@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     void initViews() {
         cardView = (TextView) findViewById(R.id.card_id);
-        cardView.setTextSize(14 * getResources().getDisplayMetrics().density);
+        cardView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
 
         dbCountView = (TextView) findViewById(R.id.db_count);
         dbRowsView = (TextView) findViewById(R.id.db_rows);
